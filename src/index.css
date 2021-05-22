@@ -1,9 +1,7 @@
-.math__textarea {
-	min-height: 200px;
+.math__texarea {
 	font-family: Menlo, Monaco, Consolas, Courier New, monospace;
-	color: #41314e;
 	line-height: 1.6em;
-	font-size: 12px;
+	font-size: 14px;
 	background: #f8f7fa;
 	border: 1px solid #f1f1f4;
 	box-shadow: none;
@@ -11,4 +9,8 @@
 	word-wrap: normal;
 	overflow-x: auto;
 	resize: vertical;
+}
+
+.math__display {
+	background-color: inherit;
 }

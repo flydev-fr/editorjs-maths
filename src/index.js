@@ -2,7 +2,8 @@
  * Build styles
  */
 import './index.css';
-// import katex from 'katex';
+import katex from 'katex';
+import 'katex/dist/katex.css';
 
 /**
  * MathTool for Editor.js
@@ -26,7 +27,7 @@ export default class MathTool {
 	}
 
 	/**
-	 * Allow to press Enter inside the MathTool textarea
+	 * Allow to press Enter inside the MathTool texarea
 	 *
 	 * @returns {boolean}
 	 * @public
@@ -50,28 +51,30 @@ export default class MathTool {
 	 * @param {boolean} options.readOnly - read only mode flag
 	 */
 	constructor({ data, config, api, readOnly }) {
-		this.api = api;
 		this.readOnly = readOnly;
 
-		this.placeholder = this.api.i18n.t(
+		this.placeholder = api.i18n.t(
 			config.placeholder || MathTool.DEFAULT_PLACEHOLDER
 		);
 
 		this.CSS = {
-			baseClass: this.api.styles.block,
-			input: this.api.styles.input,
+			baseClass: api.styles.block,
+			input: api.styles.input,
 			wrapper: 'math__wrapper',
-			textarea: 'math__textarea',
+			texarea: 'math__texarea',
+			display: 'math__display',
 		};
 
 		this.nodes = {
 			holder: null,
-			textarea: null,
+			texarea: null,
 		};
 
 		this.data = {
 			tex: data.tex || '',
 		};
+		this.tex = data.tex || '';
+
 		this.nodes.holder = this.drawView();
 	}
 
@@ -82,34 +85,45 @@ export default class MathTool {
 	 * @private
 	 */
 	drawView() {
-		const wrapper = document.createElement('div'),
-			textarea = document.createElement('textarea');
+		this.nodes.wrapper = document.createElement('div');
+		const texarea = document.createElement('p');
+		texarea.contentEditable = true;
 
-		wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
-		textarea.classList.add(this.CSS.textarea, this.CSS.input);
-		textarea.textContent = this.data.tex;
+		this.nodes.wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
+		texarea.classList.add(this.CSS.texarea, this.CSS.input);
+		texarea.innerHTML = this.data.tex;
 
-		textarea.placeholder = this.placeholder;
+		texarea.placeholder = this.placeholder;
 
 		if (this.readOnly) {
-			textarea.disabled = true;
+			texarea.disabled = true;
 		}
 
-		wrapper.appendChild(textarea);
+		texarea.addEventListener('blur', () => this._onBlur());
+		texarea.addEventListener('focus', () => this._onFocus());
+		texarea.addEventListener('input', () => (this.tex = texarea.innerHTML));
 
-		this.nodes.textarea = textarea;
+		this.nodes.wrapper.appendChild(texarea);
 
-		textarea.addEventListener('blur', () => this._onBlur());
-		textarea.addEventListener('focus', () => this._onFocus());
+		this.nodes.texarea = texarea;
 
-		return wrapper;
+		return this.nodes.wrapper;
 	}
 
 	_onBlur() {
-		this.nodes.textarea.textContent = 'gello';
+		katex.render(this.tex, this.nodes.texarea, {
+			throwOnError: false,
+			displayMode: true,
+		});
+		this.nodes.texarea.classList.remove(this.CSS.texarea, this.CSS.input);
+		this.nodes.texarea.classList.add(this.CSS.display);
 	}
 
-	_onFocus(event) {}
+	_onFocus() {
+		this.nodes.texarea.innerHTML = this.tex;
+		this.nodes.texarea.classList.remove(this.CSS.display);
+		this.nodes.texarea.classList.add(this.CSS.texarea, this.CSS.input);
+	}
 
 	/**
 	 * Return Tool's view
@@ -124,26 +138,13 @@ export default class MathTool {
 	/**
 	 * Extract Tool's data from the view
 	 *
-	 * @param {HTMLDivElement} mathWrapper - MathTool's wrapper, containing textarea with tex
+	 * @param {HTMLDivElement} mathWrapper - MathTool's wrapper, containing texarea with tex
 	 * @returns {MathData} - saved plugin tex
 	 * @public
 	 */
-	save(mathWrapper) {
+	save() {
 		return {
-			tex: mathWrapper.querySelector('textarea').value,
-		};
-	}
-
-	/**
-	 * onPaste callback fired from Editor`s core
-	 *
-	 * @param {PasteEvent} event - event with pasted content
-	 */
-	onPaste(event) {
-		const content = event.detail.data;
-
-		this.data = {
-			tex: content.textContent,
+			tex: this.tex,
 		};
 	}
 
@@ -164,8 +165,8 @@ export default class MathTool {
 	set data(data) {
 		this._data = data;
 
-		if (this.nodes.textarea) {
-			this.nodes.textarea.textContent = data.tex;
+		if (this.nodes.texarea) {
+			this.nodes.texarea.textContent = data.tex;
 		}
 	}
 
@@ -184,7 +185,7 @@ export default class MathTool {
 	}
 
 	/**
-	 * Default placeholder for MathTool's textarea
+	 * Default placeholder for MathTool's texarea
 	 *
 	 * @public
 	 * @returns {string}
@@ -192,19 +193,6 @@ export default class MathTool {
 	static get DEFAULT_PLACEHOLDER() {
 		return 'Enter some tex, e.g. \\sqrt{\\pi*x^2}';
 	}
-
-	/**
-	 *  Used by Editor.js paste handling API.
-	 *  Provides configuration to handle MATH tag.
-	 *
-	 * @static
-	 * @returns {{tags: string[]}}
-	 */
-	// static get pasteConfig() {
-	// 	return {
-	// 		tags: ['pre'],
-	// 	};
-	// }
 
 	/**
 	 * Automatic sanitize config
@@ -218,7 +206,6 @@ export default class MathTool {
 	}
 
 	validate(savedData) {
-		console.log('savedData', savedData);
 		if (!savedData.tex.trim()) {
 			return false;
 		}

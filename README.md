@@ -27,7 +27,7 @@ var editor = EditorJS({
 
 ## Output data
 
-This Tool returns code.
+This Tool returns math.
 
 ```json
 {
@@ -37,3 +37,7 @@ This Tool returns code.
 	}
 }
 ```
+
+## KaTeX
+
+THis tool is build on top of [KaTeX](https://katex.org/).
