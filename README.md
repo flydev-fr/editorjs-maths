@@ -1,6 +1,29 @@
 # Math Tool for Editor.js
 
 Math Tool for the [Editor.js](https://ifmo.su/editor) allows to include math in your articles.
+You can see it in action [here](https://sorenholsthansen.github.io/editorjs-maths-example/).
+
+## Install
+
+Download the package through npm (or yarn)
+
+```
+npm i --save-dev editorjs-maths
+yarn add editorjs-maths
+```
+
+and include the package in your app
+
+```
+const MathTool = require('editorjs-maths');
+// or import MathTool from 'editorjs-maths';
+```
+
+You can also load it from CDN
+
+```
+<script src="https://cdn.jsdelivr.net/npm/editorjs-maths@1.0.0/dist/bundle.min.js"></script>
+```
 
 ## Usage
 
@@ -40,4 +63,4 @@ This Tool returns math.
 
 ## KaTeX
 
-THis tool is build on top of [KaTeX](https://katex.org/).
+This tool is build on top of [KaTeX](https://katex.org/).
