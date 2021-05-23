@@ -87,21 +87,26 @@ export default class MathTool {
 	drawView() {
 		this.nodes.wrapper = document.createElement('div');
 		const texarea = document.createElement('p');
-		texarea.contentEditable = true;
-
-		this.nodes.wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
-		texarea.classList.add(this.CSS.texarea, this.CSS.input);
-		texarea.innerHTML = this.data.tex;
-
-		texarea.placeholder = this.placeholder;
 
 		if (this.readOnly) {
-			texarea.disabled = true;
-		}
+			texarea.contentEditable = false;
+			texarea.classList.add(this.CSS.display);
+			katex.render(this.data.tex, texarea, {
+				throwOnError: false,
+				displayMode: true,
+			});
+		} else {
+			texarea.contentEditable = true;
 
-		texarea.addEventListener('blur', () => this._onBlur());
-		texarea.addEventListener('focus', () => this._onFocus());
-		texarea.addEventListener('input', () => (this.tex = texarea.innerHTML));
+			this.nodes.wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
+			texarea.classList.add(this.CSS.texarea, this.CSS.input);
+			texarea.innerHTML = this.data.tex;
+
+			texarea.placeholder = this.placeholder;
+			texarea.addEventListener('blur', () => this._onBlur());
+			texarea.addEventListener('focus', () => this._onFocus());
+			texarea.addEventListener('input', () => (this.tex = texarea.innerHTML));
+		}
 
 		this.nodes.wrapper.appendChild(texarea);
 
@@ -166,7 +171,7 @@ export default class MathTool {
 		this._data = data;
 
 		if (this.nodes.texarea) {
-			this.nodes.texarea.textContent = data.tex;
+			this.nodes.texarea.innerHTML = data.tex;
 		}
 	}
 
