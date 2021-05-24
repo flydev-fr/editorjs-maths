@@ -14,14 +14,14 @@ yarn add editorjs-maths
 
 and include the package in your app
 
-```
+```javascript
 const MathTool = require('editorjs-maths');
 // or import MathTool from 'editorjs-maths';
 ```
 
 You can also load it from CDN
 
-```
+```html
 <script src="https://cdn.jsdelivr.net/npm/editorjs-maths@1.0.0/dist/bundle.min.js"></script>
 ```
 
